@@ -20,9 +20,15 @@
 export async function updatePackageJsonVersion() {
   const arg0 = Deno.args[0].replace("--", "").toLowerCase();
   type tierType = "major" | "minor" | "patch";
+  const tierArray: tierType[] = ["major", "minor", "patch"];
 
   if (arg0 !== "major" && arg0 !== "minor" && arg0 !== "patch") {
-    console.error("Arg", arg0, "not supported. Please use");
+    console.error(
+      "Arg",
+      arg0,
+      "not supported. Please use",
+      tierArray.map((tier) => `--${tier}`),
+    );
     Deno.exit(1); // exits with failure code 1
   }
 
@@ -46,6 +52,10 @@ export async function updatePackageJsonVersion() {
   };
 
   versionObject[tier]++;
+
+  tierArray.slice(tierArray.indexOf(tier) + 1).forEach((prevTier) => {
+    versionObject[prevTier] = 0;
+  });
 
   const nextVersion =
     `${versionObject.major}.${versionObject.minor}.${versionObject.patch}`;
